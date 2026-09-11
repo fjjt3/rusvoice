@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RusVoice — Russian Speech Reader</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: "Inter", "Arial", "Segoe UI", sans-serif;
+            background: #f9f9f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            padding: 40px 16px;
+        }
+        .container {
+            width: 100%;
+            max-width: 680px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 32px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 24px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 16px 0 6px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 160px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .controls {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .field {
+            flex: 1;
+            min-width: 140px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+        }
+        button {
+            width: 100%;
+            margin-top: 24px;
+            padding: 14px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 16px;
+            min-height: 20px;
+            font-size: 14px;
+            color: #d32f2f;
+        }
+        audio {
+            width: 100%;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RusVoice</h1>
+        <p class="subtitle">Paste Russian text and listen to native speech.</p>
+
+        <form id="tts-form">
+            <label for="text">Текст для чтения (text to read)</label>
+            <textarea
+                id="text"
+                name="text"
+                placeholder="Вставьте текст из учебника здесь... (Paste textbook text here)"
+                required
+            ></textarea>
+
+            <div class="controls">
+                <div class="field">
+                    <label for="voice">Голос (Voice)</label>
+                    <select id="voice" name="voice_key">
+                        <option value="ru_female">Svetlana (female)</option>
+                        <option value="ru_male">Dmitry (male)</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="rate">Скорость (Speed)</label>
+                    <select id="rate" name="rate">
+                        <option value="-20%">Slow</option>
+                        <option value="+0%" selected>Normal</option>
+                        <option value="+20%">Fast</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" id="submit-btn">Озвучить (Speak)</button>
+        </form>
+
+        <div id="status" class="status" role="alert"></div>
+        <audio id="player" controls></audio>
+    </div>
+
+    <script>
+        const form = document.getElementById("tts-form");
+        const player = document.getElementById("player");
+        const statusEl = document.getElementById("status");
+        const submitBtn = document.getElementById("submit-btn");
+        let objectUrl = null;
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            statusEl.textContent = "";
+            submitBtn.disabled = true;
+
+            const payload = {
+                text: document.getElementById("text").value,
+                voice_key: document.getElementById("voice").value,
+                rate: document.getElementById("rate").value,
+            };
+
+            try {
+                const response = await fetch("/api/v1/tts", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                    const data = await response.json().catch(() => ({}));
+                    throw new Error(data.detail || "Ошибка запроса (Request failed)");
+                }
+
+                const blob = await response.blob();
+                if (objectUrl) {
+                    URL.revokeObjectURL(objectUrl);
+                }
+                objectUrl = URL.createObjectURL(blob);
+                player.src = objectUrl;
+                await player.play();
+            } catch (error) {
+                statusEl.textContent = "Ошибка: " + error.message;
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

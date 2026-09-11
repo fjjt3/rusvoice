@@ -6,21 +6,21 @@ _Order and status of features. Provides a clear view of completed work, current 
 
 _Completed features, listed in order of implementation._
 
-*(No features completed yet. Project initialization phase).*
+1. **000 · environment-and-scaffolding** — Project folder structure, virtual environment setup, FastAPI/edge-tts dependencies, and test server execution.
+2. **001 · core-text-to-speech-engine-module** — Isolated async service for in-memory MP3 synthesis using Russian neural voices.
+3. **002 · text-preprocessing-and-phonetic-parser** — Regex-based text cleaner fixing PDF artifacts and normalizing Cyrillic text for synthesis.
+4. **003 · fastapi-streaming-api-and-endpoints** — `POST /api/v1/tts` streaming MP3 endpoint wired to text cleaner and TTS engine.
+5. **004 · student-reader-web-interface-and-audio-player** — Responsive student UI with textarea, voice/speed controls, and blob-fed HTML5 audio player.
+6. **005 · text-chunking-processor** — Sentence-boundary text splitter producing ordered chunks under a configurable character limit.
 
 ## Next Up 🔜
 
-_Immediate focus. Ideally only one feature "in progress" at a time._
+_Ideal focus. Ideally only one feature "in progress" at a time._
 
-1. **001 · environment-and-scaffolding** — Project folder structure, virtual environment setup, FastAPI/edge-tts dependencies, and test server execution.
+*(No features in progress. All planned features complete.)*
 
 ## Backlog / Ideas 💡
 
 _Uncommitted ideas that align with the constitution._
-
-- **002 · core-tts-engine** — Encapsulated Python service for asynchronous in-memory audio generation using Russian neural voices.
-- **003 · api-audio-streaming** — FastAPI endpoint to validate requests and stream MP3 audio.
-- **004 · student-web-interface** — Interactive web UI featuring audio player controls, voice selection, and speed adjustments for students.
-- **005 · text-chunking-processor** — Text processor to split long textbook passages into sequentially playable chunks.
 
 > Every new feature is created under `features/NNN-feature-name/` containing `spec.md`, `plan.md`, and `tasks.md` before any code is written.
